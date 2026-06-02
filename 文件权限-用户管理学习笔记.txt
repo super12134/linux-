@@ -1,0 +1,68 @@
+acl学习.
+学习目标：a只能读，b只能写
+项目建立一个文件夹 /tmp/passwd/shadow/group/t.txt
+
+第一步 使用root建立文件
+sudo -i
+cd /tmp
+mkdir passwd && cd passwd
+mkdir shadow && cd shadow
+mkdir group && cd group
+touch t.txt
+
+第二步 新建角色
+adduser a  (只读)
+adduser b  (只写)
+# 记得用 passwd a 和 passwd b 设置密码
+
+第三步 设置ACL权限
+setfacl -m u:a:r--  t.txt
+setfacl -m u:b:-w-  t.txt
+
+第四步 测试
+# 切换到b（只写用户）
+su - b
+echo '223' > t.txt
+cat t.txt    (应该会报错 Permission denied)
+
+exit          (退回root)
+
+su - a
+cat t.txt    (应该能正常读取)
+
+suid学习.
+ SUID = 让普通用户，临时拥有文件【所有者】的权限。
+ 学习目标:开通cat指令的suid
+
+ cd /tmp/passwd/shadow/group
+ 第一步给cat开通suid
+ chmod u+s /usr/bin/cat
+ 第二步测试
+ su - b
+ cat t.txt
+ 第三步关闭权限
+ chmod u-s /usr/bin/cat
+
+sgid学习.
+ 第一步 给t.txt设置640权限（owner可读写，group可读，others无权限）
+ chmod 640 t.txt
+ 第二步测试
+ su - b
+ cat t.txt(应该不行)
+ exit
+ 第三步 给cat加组权限
+ chmod g+s /usr/bin/cat
+ su - b
+ cat t.txt
+
+ sticky学习
+ 目标：
+ 创建一个公共文件夹，大家都能读写，但不能删别人的文件！
+ 在group目录下
+ 第一步建夹
+ mkdir public
+ 第二步加权限
+ chmod o+t public
+ 第三步检查
+ ls -l public
+ 权限末尾会有个t
