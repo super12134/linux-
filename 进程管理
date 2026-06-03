@@ -1,0 +1,26 @@
+常用命令
+
+top
+ 查看进程使用情况
+ P按cpu使用率排列
+ M按内存
+ T按cup加时间
+ q退出
+ 1看多核cup情况
+ c看详细地址
+ N pid排列
+ 空格 刷新
+
+strace
+ 跟踪进程情况
+ strace -p pid
+ strace cat jupyter.txt
+
+
+lsof
+ 查看端口使用情况
+ lsof -i :22
+ 监听本机所有端口
+ lsof -nP -iTCP -sTCP:LISTEN
+
+

@@ -44,6 +44,7 @@ suid学习.
  chmod u-s /usr/bin/cat
 
 sgid学习.
+给程序加上组的权限
  第一步 给t.txt设置640权限（owner可读写，group可读，others无权限）
  chmod 640 t.txt
  第二步测试
