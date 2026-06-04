@@ -1,0 +1,28 @@
+ping 命令
+ ping 8.8.8.8
+ 测试与网络能不能连通
+
+linux 系统
+ traceroute
+windows 系统
+ tracert
+ 路由逐跳探测，定位断链节点
+
+ traceroute 8.8.8.8
+
+mtr=ping+traceroute
+
+dns排查
+ dig
+ nslookup
+ nslookup 域名或ip  返回ip或域名跟dns服务器
+
+ss /netstat 查看本机端口监听、连接
+  ss -lntp #监听TCP端口
+  ss -antp #所有TCP连接
+  netstat -an | grep :22 
+telnet 地址 端口号
+ 用于测试对应的主机地名通不通
+
+curl 地址/域名
+ 发送 GET 请求并返回响应内容

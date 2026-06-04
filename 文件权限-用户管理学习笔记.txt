@@ -67,3 +67,7 @@ sgid学习.
  第三步检查
  ls -l public
  权限末尾会有个t
+
+ 用户添加与删除
+ 添加 adduser 名字
+ 删除 userdel -r 名字
