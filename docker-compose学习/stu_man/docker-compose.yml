@@ -1,0 +1,17 @@
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: student_db
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"      # 主机 3307 映射到容器 3306，避免和本地 MySQL 冲突
+
+  app:
+    build: .              # 用当前目录的 Dockerfile 构建
+    ports:
+      - "8080:8080"
+    environment:
+      MYSQL_HOST: mysql   # 告诉 Spring Boot MySQL 的服务名叫 mysql
+    depends_on:
+      - mysql   

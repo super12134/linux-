@@ -1,0 +1,47 @@
+# docker-compose.yml  ——  多容器应用的一站式配置
+# 使用 docker compose up 即可启动所有服务
+
+services:
+
+  # ========== Web 应用服务 ==========
+  web:
+    # 从当前目录下的 Dockerfile 构建
+    build: ./app
+    # 容器名称（方便识别）
+    container_name: myapp-web
+    # 端口映射: 宿主机:3000 -> 容器:3000
+    ports:
+      - "3000:3000"
+    # 环境变量
+    environment:
+      - PORT=3000
+      - REDIS_HOST=redis     # 这里的 "redis" 就是下面这个服务的名称
+    # 依赖关系 — 先启动 db 和 redis
+    depends_on:
+      - redis
+    # 重启策略
+    restart: unless-stopped
+
+  # ========== Redis 缓存服务 ==========
+  redis:
+    # 直接使用官方镜像，无需 Dockerfile
+    image: redis:7-alpine
+    container_name: myapp-redis
+    # 暴露端口给其他容器（不映射到宿主机）
+    expose:
+      - "6379"
+    # 数据持久化
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    # 健康检查 — 确保 Redis 真正就绪
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+# ========== 卷声明 ==========
+# 命名的卷会在 docker compose down 后保留数据
+volumes:
+  redis_data:

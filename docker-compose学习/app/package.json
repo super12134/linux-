@@ -1,0 +1,10 @@
+{
+  "name": "node-redis-counter",
+  "version": "1.0.0",
+  "description": "Docker Compose demo app",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.18.2",
+    "redis": "^4.6.7"
+  }
+}

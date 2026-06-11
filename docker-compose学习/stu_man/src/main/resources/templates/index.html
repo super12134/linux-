@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生信息管理系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            min-height: 100vh;
+        }
+        /* ===== 顶部导航 ===== */
+        .navbar {
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            color: white;
+            padding: 16px 40px;
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .navbar span { opacity: 0.8; font-weight: normal; font-size: 14px; margin-left: 16px; }
+
+        /* ===== 容器 ===== */
+        .container { max-width: 1100px; margin: 24px auto; padding: 0 20px; }
+
+        /* ===== 提示消息 ===== */
+        .alert {
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error   { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        /* ===== 表单卡片 ===== */
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            padding: 24px 28px;
+            margin-bottom: 24px;
+        }
+        .card h3 {
+            font-size: 16px;
+            margin-bottom: 16px;
+            color: #1a73e8;
+            border-left: 4px solid #1a73e8;
+            padding-left: 12px;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 120px;
+        }
+        .form-group label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        .form-group input, .form-group select {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .btn:hover { opacity: 0.85; }
+        .btn-primary { background: #1a73e8; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger  { background: #dc3545; color: white; }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-sm { padding: 4px 12px; font-size: 12px; }
+
+        /* ===== 搜索栏 ===== */
+        .search-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .search-bar input {
+            flex: 1;
+            max-width: 300px;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .search-bar input:focus {
+            outline: none;
+            border-color: #1a73e8;
+        }
+
+        /* ===== 表格 ===== */
+        .table-wrapper { overflow-x: auto; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        thead th {
+            background: #f8f9fa;
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #e9ecef;
+            white-space: nowrap;
+        }
+        tbody td {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+        tbody tr:hover { background: #f5f8ff; }
+        .empty-row td {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+        .action-links { display: flex; gap: 6px; flex-wrap: wrap; }
+
+        /* ===== 底部 ===== */
+        .footer {
+            text-align: center;
+            color: #aaa;
+            font-size: 12px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    📚 学生信息管理系统
+    <span>Student Management System</span>
+</div>
+
+<div class="container">
+
+    <!-- 提示消息 -->
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <!-- ===== 新增 / 编辑表单 ===== -->
+    <div class="card">
+        <h3 th:text="${editMode} ? '✏️ 编辑学生信息' : '➕ 添加新学生'"></h3>
+
+        <form th:action="${editMode} ? @{/students/update/{id}(id=${student.id})} : @{/students}"
+              th:object="${student}" method="post">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>姓名 *</label>
+                    <input type="text" th:field="*{name}" placeholder="请输入姓名" required>
+                </div>
+                <div class="form-group">
+                    <label>学号 *</label>
+                    <input type="text" th:field="*{studentNo}" placeholder="请输入学号"
+                           th:readonly="${editMode}" required>
+                </div>
+                <div class="form-group">
+                    <label>性别</label>
+                    <select th:field="*{gender}">
+                        <option value="">请选择</option>
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>年龄 *</label>
+                    <input type="number" th:field="*{age}" placeholder="年龄" min="1" max="150" required>
+                </div>
+                <div class="form-group">
+                    <label>专业</label>
+                    <input type="text" th:field="*{major}" placeholder="如：计算机科学与技术">
+                </div>
+                <div class="form-group" style="flex:0 0 auto;">
+                    <button type="submit" class="btn" th:classappend="${editMode} ? 'btn-success' : 'btn-primary'"
+                            th:text="${editMode} ? '✅ 更新' : '✅ 添加'"></button>
+                    <a th:if="${editMode}" href="/students" class="btn btn-warning" style="margin-left:6px;">↩️ 取消</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- ===== 搜索 ===== -->
+    <div class="card">
+        <h3>🔍 搜索学生</h3>
+        <form class="search-bar" action="/students/search" method="get">
+            <input type="text" name="keyword" placeholder="输入学生姓名搜索..."
+                   th:value="${keyword}">
+            <button type="submit" class="btn btn-primary">🔍 搜索</button>
+            <a th:if="${keyword}" href="/students" class="btn btn-warning">↩️ 清除</a>
+        </form>
+    </div>
+
+    <!-- ===== 学生列表 ===== -->
+    <div class="card">
+        <h3 th:text="'📋 学生列表（共 ' + ${students.size()} + ' 人）'"></h3>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>姓名</th>
+                    <th>学号</th>
+                    <th>性别</th>
+                    <th>年龄</th>
+                    <th>专业</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${students}">
+                    <td th:text="${s.id}"></td>
+                    <td><strong th:text="${s.name}"></strong></td>
+                    <td th:text="${s.studentNo}"></td>
+                    <td th:text="${s.gender}"></td>
+                    <td th:text="${s.age}"></td>
+                    <td th:text="${s.major}"></td>
+                    <td class="action-links">
+                        <a class="btn btn-warning btn-sm" th:href="@{/students/edit/{id}(id=${s.id})}">✏️ 编辑</a>
+                        <a class="btn btn-danger btn-sm" th:href="@{/students/delete/{id}(id=${s.id})}"
+                           onclick="return confirm('确定要删除学生「' + '${s.name}' + '」吗？')">🗑️ 删除</a>
+                    </td>
+                </tr>
+                <tr class="empty-row" th:unless="${students.size() > 0}">
+                    <td colspan="7">📭 暂无学生数据，请在上方添加</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2024 学生信息管理系统 &mdash; Spring Boot + MySQL
+    </div>
+</div>
+
+</body>
+</html>
