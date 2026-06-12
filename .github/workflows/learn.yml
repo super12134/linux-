@@ -1,0 +1,9 @@
+name: 我的第一个工作流
+on: [push]
+jobs:
+  hello:
+    runs-on: ubunte-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 打印 Hello ci/cd
+        run: echo "Hello ci/cd"
